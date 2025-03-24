@@ -1,0 +1,138 @@
+version: '3.7'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=mypass
+      - xpack.security.enabled=true
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./es_data:/usr/share/elasticsearch/data
+    networks:
+      - elastic_net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_user
+      - ELASTICSEARCH_PASSWORD=MySecurePassword
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./kibana_data:/usr/share/kibana/data
+    networks:
+      - elastic_net
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: logstash
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=mypass
+    volumes:
+      - ./logstash_pipeline:/usr/share/logstash/pipeline
+      - ./log_files:/logs  
+    ports:
+      - "5044:5044"  
+      - "9600:9600"  
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic_net
+
+  # ubuntu_log_writer:
+  #   image: ubuntu:latest
+  #   container_name: ubuntu_log_writer
+  #   command: >
+  #     /bin/bash -c "while true; do
+  #       echo '{\"timestamp\": \"$(date)\", \"message\": \"Log message from Ubuntu container\"}' >> /logs/ubuntu_log.log;
+  #       sleep 1;
+  #     done"
+  #   volumes:
+  #     - ./log_files:/logs  # Mounting log file directory to write logs
+  #   networks:
+  #     - elastic_net
+  #   restart: always
+
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - elastic_net
+    restart: always
+
+
+  task-app:
+    build:
+      context: ./task-app
+    container_name: task-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./log_files:/app/logs 
+    networks:
+      - elastic_net
+    restart: always
+
+
+
+volumes:
+  # es_data:
+  #   driver: local
+  # kibana_data:
+  #   driver: local
+  # logstash_pipeline:
+  #   driver: local
+  # log_files:
+  #   driver: local
+  mongo_data:
+    driver: local
+
+networks:
+  elastic_net:
+    driver: bridge
+
+
+
+
+
+
+# sudo docker exec -it elasticsearch bash -c 'echo -e "y\nmypass\nmypass" | bin/elasticsearch-reset-password -u elastic -i'
+
+
+# curl -X POST "http://localhost:9200/_security/user/kibana_user" -H "Content-Type: application/json" -u elastic:mypass -d '{
+#   "password": "MySecurePassword",
+#   "roles": ["kibana_system"],
+#   "full_name": "Kibana System User"
+# }'
+
+
+# sudo docker rm -f $(sudo docker ps -aq)
+
+# sudo docker rmi -f $(sudo docker images -q)
+
+
+
+# curl -X POST http://localhost:3000/tasks -H "Content-Type: application/json" -d '{"task": "Complete NestJS tutorial"}'
+# curl -X PUT http://localhost:3000/tasks/67e05b1d3e3fbf7d822c6684 -H "Content-Type: application/json" -d '{"task": "Update NestJS project"}'
+# curl -X PUT http://localhost:3000/tasks/edit/67e05be83e3fbf7d822c6688 -H "Content-Type: application/json" -d '{"task": "Edited task description"}'
+# curl -X DELETE http://localhost:3000/tasks/67e05b1d3e3fbf7d822c6684
+# curl -X GET http://localhost:3000/tasks
+
+
+
+
