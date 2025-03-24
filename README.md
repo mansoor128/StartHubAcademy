@@ -41,11 +41,18 @@ This is a simple to-do list application built using NestJS and MongoDB, containe
    ```
 3. Update/create Elasticsearch password
    ```sh
-   sleep 150
+   sleep 300
    sudo docker exec -it elasticsearch bash -c 'echo -e "y\nmypass\nmypass" | bin/elasticsearch-reset-password -u elastic -i'
    curl -X POST "http://localhost:9200/_security/user/kibana_user" -H "Content-Type: application/json" -u elastic:mypass -d '{"password": "MySecurePassword","roles": ["kibana_system"],"full_name": "Kibana System User"}'
    ```
-3. Access the services:
+4. Restart Services:
+   ```sh
+   docker-compose down
+   sleep 100
+   docker-compose up -d
+   ```
+
+5. Access the services:
    - **NestJS API**: [http://localhost:3000](http://localhost:3000)
    - **MongoDB**: `mongodb://localhost:27017`
    - **Kibana Dashboard**: [http://localhost:5601](http://localhost:5601)
@@ -99,9 +106,10 @@ curl -X GET http://localhost:3000/tasks
 
 ### Steps to Access Kibana Dashboard:
 1. Open Kibana: [http://localhost:5601](http://localhost:5601)
-2. Navigate to **"Discover"**.
-3. Select the appropriate index pattern (`logstash-*`).
-4. View CRUD operation logs.
+2. user - elastic - password - mypass
+3. Navigate to **"Discover"**.
+4. Select the appropriate index pattern (`logstash-*`).
+5. View CRUD operation logs.
 
 ---
 
