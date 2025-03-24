@@ -4,6 +4,6 @@ es_data/*
 log_files/*
 !log_files/.gitkeep
 kibana_data/*
-~kibana_data/.gitkeep
+!kibana_data/.gitkeep
 mongo_data/*
 !mongo_data/.gitkeep
