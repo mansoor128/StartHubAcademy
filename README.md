@@ -21,7 +21,6 @@ This is a simple to-do list application built using NestJS and MongoDB, containe
 | **Elasticsearch** | Provides a self-contained instance of the log storage. |
 | **Kibana** | Allows centralized visualization of logs without external dependencies. |
 | **Logstash** | Enables log collection and forwarding in a reproducible environment. |
-| **Ubuntu Log Writer** | Simulates log generation to test ELK functionality. |
 
 ---
 
@@ -33,12 +32,18 @@ This is a simple to-do list application built using NestJS and MongoDB, containe
 ### Steps:
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/task-app.git
-   cd task-app
+   git clone https://github.com/mansoor128/StartHubAcademy
+   cd StartHubAcademy
    ```
 2. Run the application using Docker Compose:
    ```sh
    docker-compose up -d
+   ```
+3. Update/create Elasticsearch password
+   ```sh
+   sleep 150
+   sudo docker exec -it elasticsearch bash -c 'echo -e "y\nmypass\nmypass" | bin/elasticsearch-reset-password -u elastic -i'
+   curl -X POST "http://localhost:9200/_security/user/kibana_user" -H "Content-Type: application/json" -u elastic:mypass -d '{"password": "MySecurePassword","roles": ["kibana_system"],"full_name": "Kibana System User"}'
    ```
 3. Access the services:
    - **NestJS API**: [http://localhost:3000](http://localhost:3000)
@@ -97,11 +102,6 @@ curl -X GET http://localhost:3000/tasks
 2. Navigate to **"Discover"**.
 3. Select the appropriate index pattern (`logstash-*`).
 4. View CRUD operation logs.
-
----
-
-## Screenshots of Kibana Dashboard  
-(Screenshots showing visualized logs should be added here)
 
 ---
 
