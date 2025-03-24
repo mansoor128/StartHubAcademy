@@ -1,4 +1,9 @@
-es_data/
-log_files/
-kibana_data/
-mongo_data/
+
+es_data/*
+!es_data/.gitkeep
+log_files/*
+!log_files/.gitkeep
+kibana_data/*
+~kibana_data/.gitkeep
+mongo_data/*
+!mongo_data/.gitkeep
